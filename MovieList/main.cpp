@@ -14,26 +14,25 @@ struct MovieNode
 	int year;
 	int rating;
 	string plot;
+	MovieNode *next;
 };
 
 
 void WordWrap(string inputString);
+MovieNode *CreateList(string filename);
 
 
 
 int main()
 
 {
+	MovieNode *movieList;
+	MovieNode *moviePtr;
 
+	movieList = CreateList("InputFile.txt");
 
-	string title = "Pirates of the Caribbean 1: The Curse of the Black Pearl";
-	string actor1 = "Johnny Depp";
-	string actor2 = "Orlando Bloom";
-	string genre1 = "Action";
-	string genre2 = "Action";
-	int year = 2003;
-	int rating = 8;
-	string plot = "This swash-buckling tale follows the quest of Captain Jack Sparrow, a savvy pirate, and Will Turner, a resourceful blacksmith, as they search for Elizabeth Swann. Elizabeth, the daughter of the governor and the love of Will's life, has been kidnapped by the feared Captain Barbossa. Little do they know, but the fierce and clever Barbossa has been cursed. He, along with his large crew, is under an ancient curse, doomed for eternity to neither live, nor die. That is, unless a blood sacrifice is made. Full of edge-of-the-seat action and swashbuckling adventures, this is a movie you won't want to miss!";
+	// Set movie ponter to first item in the list
+	moviePtr = movieList;
 
 	int movieCnt = 10;
 
@@ -42,37 +41,73 @@ int main()
 	// Line 2 - Movie number and Title
 	cout << "MOVIE #: " << left << setw(9) << movieCnt << "Title: ";
 	// IF ELSE - Output "..." if title is longer than 50 chars.
-	if (title.length() > 50)
+	if (moviePtr->title.length() > 50)
 	{
-		cout << title.substr(0,44) << " ..." << endl;
+		cout << moviePtr->title.substr(0,44) << " ..." << endl;
 	}
 	else
 	{
-	cout << title << endl;
+	cout << moviePtr->title << endl;
 	}
 	// Line 3 - Horizontal line of hyphens
 	cout << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
 	// Line 4 - Year and Rating
-	cout << "Year: " << setw(12) << year << "Rating: " << rating << endl;
+	cout << "Year: " << setw(12) << moviePtr->year << "Rating: " << moviePtr->rating << endl;
 	// Line 5 - Horizontal line of hyphens
 	cout << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
 	// Line 6 & 7 - Actors and genres
-	cout << setw(18) << "Leading Actor:" << setw(25) << actor1 
-		 << "Genre 1: " << genre1 << endl;
-	cout << setw(18) << "Supporting Actor:" << setw(25) << actor2 
-		 << "Genre 2: " << genre2 << right << endl;
+	cout << setw(18) << "Leading Actor:" << setw(25) << moviePtr->actor1 
+		 << "Genre 1: " << moviePtr->genre1 << endl;
+	cout << setw(18) << "Supporting Actor:" << setw(25) << moviePtr->actor2 
+		 << "Genre 2: " << moviePtr->genre2 << right << endl;
 	// Line 8 - Horizontal line of hyphens
 	cout << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
 	// Line 9+ - Plot
 	cout << "PLOT:" << endl;
 	// WordWrap - Output formatted plot string followed by horizonal line
-	WordWrap(plot);
+	WordWrap(moviePtr->plot);
 	cout << setfill('*') << setw(75) << '*' <<  setfill(' ') << endl;
 	
+}
 
+MovieNode* CreateList(string filename)
+{
+	ifstream inFile;
+	// Use pointers to create a linked list.
+	MovieNode *head;
+	MovieNode *moviePtr;
 
+	inFile.open(filename.c_str());
+	head = NULL;
+	moviePtr = NULL;
+	moviePtr = new MovieNode;
 
+	while (inFile && moviePtr != NULL)
+	{
+		getline(inFile, moviePtr->title);
+		getline(inFile, moviePtr->actor1);
+		getline(inFile, moviePtr->actor2);
+		getline(inFile, moviePtr->genre1);
+		getline(inFile, moviePtr->genre2);
+		inFile >> moviePtr->year;
+		inFile >> moviePtr->rating;
+		inFile.ignore(10000,'\n');
+		getline(inFile, moviePtr->plot);
+		inFile.ignore(10000,'\n');
 
+		// Set next pointer of new node to first node
+		moviePtr->next = head;
+		// Set head pointer to the new node.
+		head = moviePtr;
+		moviePtr = new MovieNode;
+
+		
+	}
+
+	delete moviePtr;
+	inFile.close();
+
+	return head;
 }
 
 
