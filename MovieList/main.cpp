@@ -17,66 +17,105 @@ struct MovieNode
 	MovieNode *next;
 };
 
-
-void WordWrap(string inputString);
+void OutputHeader(string asName,   // IN - assignment Name
+				  char asType,	   // IN - assignment type
+								   // - (LAB or ASSIGNMENT)
+				  int asNum);	   // IN - assignment number
+void WordWrap(string inputString, ofstream &outFile);
 MovieNode *CreateList(string filename);
+void OutputList(MovieNode *head, string filename);
 
 
 
 int main()
 
 {
+	string inFilename;
+	string outFilename;
+
 	MovieNode *movieList;
-	MovieNode *moviePtr;
 
-	movieList = CreateList("InputFile.txt");
+	// OutputHeader - Prints class header to output
+	OutputHeader("Intro to Linked Lists", 'a', 6);
 
-	// Set movie ponter to first item in the list
-	moviePtr = movieList;
+	// IN - Get names of the input and output files
+	cout << "Please enter the name of the input file: ";
+	getline(cin, inFilename);
 
-	int movieCnt = 10;
+	cout << "\nPlease enter the name of the output file: ";
+	getline(cin, outFilename);
 
-	// Line 1 - Horizonal line of asterisks
-	cout << setfill('*') << setw(75) << '*' <<  setfill(' ') << endl;
-	// Line 2 - Movie number and Title
-	cout << "MOVIE #: " << left << setw(9) << movieCnt << "Title: ";
-	// IF ELSE - Output "..." if title is longer than 50 chars.
-	if (moviePtr->title.length() > 50)
-	{
-		cout << moviePtr->title.substr(0,44) << " ..." << endl;
-	}
-	else
-	{
-	cout << moviePtr->title << endl;
-	}
-	// Line 3 - Horizontal line of hyphens
-	cout << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
-	// Line 4 - Year and Rating
-	cout << "Year: " << setw(12) << moviePtr->year << "Rating: " << moviePtr->rating << endl;
-	// Line 5 - Horizontal line of hyphens
-	cout << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
-	// Line 6 & 7 - Actors and genres
-	cout << setw(18) << "Leading Actor:" << setw(25) << moviePtr->actor1 
-		 << "Genre 1: " << moviePtr->genre1 << endl;
-	cout << setw(18) << "Supporting Actor:" << setw(25) << moviePtr->actor2 
-		 << "Genre 2: " << moviePtr->genre2 << right << endl;
-	// Line 8 - Horizontal line of hyphens
-	cout << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
-	// Line 9+ - Plot
-	cout << "PLOT:" << endl;
-	// WordWrap - Output formatted plot string followed by horizonal line
-	WordWrap(moviePtr->plot);
-	cout << setfill('*') << setw(75) << '*' <<  setfill(' ') << endl;
-	
+	// CreateList - Create a linked list, store the head pointer
+	movieList = CreateList(inFilename);
+
+	// OutputList - Formatted output of the linked list to text file 
+	OutputList(movieList, outFilename);	
 }
 
-MovieNode* CreateList(string filename)
+void OutputList(MovieNode *head,	// IN - Movie linked list
+				string filename)	// IN - Name of output file
 {
-	ifstream inFile;
-	// Use pointers to create a linked list.
-	MovieNode *head;
-	MovieNode *moviePtr;
+	ofstream outFile;		// OUT - Output file stream
+	MovieNode *moviePtr;	// OUT - Points to current node in list
+	int movieCnt;			// OUT - Current list count of movie
+	
+	outFile.open(filename.c_str());
+	movieCnt = 1;
 
+	// Set movie ponter to first item in the list
+	moviePtr = head;
+
+	while (moviePtr != NULL)
+	{
+		// Line 1 - Horizonal line of asterisks
+		outFile << setfill('*') << setw(75) << '*' <<  setfill(' ') << endl;
+		// Line 2 - Current count of the movie and title
+		outFile << "MOVIE #: " << left << setw(9) << movieCnt << "Title: ";
+		// IF ELSE - Output "..." if title is longer than 50 chars.
+		if (moviePtr->title.length() > 50)
+		{
+			outFile << moviePtr->title.substr(0,44) << " ..." << endl;
+		}
+		else
+		{
+		outFile << moviePtr->title << endl;
+		}
+		// Line 3 - Horizontal line of hyphens
+		outFile << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
+		// Line 4 - Year and Rating
+		outFile << "Year: " << setw(12) << moviePtr->year << "Rating: " << moviePtr->rating << endl;
+		// Line 5 - Horizontal line of hyphens
+		outFile << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
+		// Line 6 & 7 - Actors and genres
+		outFile << setw(18) << "Leading Actor:" << setw(25) << moviePtr->actor1 
+			 << "Genre 1: " << moviePtr->genre1 << endl;
+		outFile << setw(18) << "Supporting Actor:" << setw(25) << moviePtr->actor2 
+			 << "Genre 2: " << moviePtr->genre2 << right << endl;
+		// Line 8 - Horizontal line of hyphens
+		outFile << setfill('-') << setw(75) << '-' << setfill(' ') << endl;
+		// Line 9+ - Plot
+		outFile << "PLOT:" << endl;
+
+		// WordWrap - Output formatted plot string followed by horizonal line
+		WordWrap(moviePtr->plot, outFile);
+
+		outFile << setfill('*') << setw(75) << '*' <<  setfill(' ');
+		outFile << endl << endl << endl;
+	
+		movieCnt++;
+		moviePtr = moviePtr->next;
+	}
+
+	outFile.close();
+}
+
+MovieNode* CreateList(string filename)	// IN - Name of input file		
+{
+	ifstream inFile;		// IN - Input file stream
+	MovieNode *head;		// IN - Head pointer of linked list
+	MovieNode *moviePtr;	// IN - Current pointer of linked list
+
+	// Initialize
 	inFile.open(filename.c_str());
 	head = NULL;
 	moviePtr = NULL;
@@ -84,6 +123,7 @@ MovieNode* CreateList(string filename)
 
 	while (inFile && moviePtr != NULL)
 	{
+		// IN - Get data from input file and store into members of node
 		getline(inFile, moviePtr->title);
 		getline(inFile, moviePtr->actor1);
 		getline(inFile, moviePtr->actor2);
@@ -93,27 +133,27 @@ MovieNode* CreateList(string filename)
 		inFile >> moviePtr->rating;
 		inFile.ignore(10000,'\n');
 		getline(inFile, moviePtr->plot);
+		// Ignore the blank line
 		inFile.ignore(10000,'\n');
 
-		// Set next pointer of new node to first node
+		// Set next pointer of node to previous first node
 		moviePtr->next = head;
-		// Set head pointer to the new node.
+		// Set head pointer to the initialized node.
 		head = moviePtr;
+		// Create a new node.
 		moviePtr = new MovieNode;
-
-		
 	}
-
+	// Dealloc unused memory and close input file stream
 	delete moviePtr;
 	inFile.close();
 
 	return head;
 }
 
-
-void WordWrap(string inputString)
+void WordWrap(string inputString, // IN - String to be formatted
+			  ofstream &outFile)  // OUT - Output to be written to	
 {
-	const int MAX_LENGTH = 75;
+	const int MAX_LENGTH = 74;
 	string line;
 	string word;
 	int index;
@@ -135,7 +175,7 @@ void WordWrap(string inputString)
 			// OUT - Output if the line + word exceeds max length
 			if (line.length() + word.length() > MAX_LENGTH)
 			{
-				cout << line << endl;
+				outFile << line << endl;
 				line.clear();
 			}
 
@@ -147,6 +187,6 @@ void WordWrap(string inputString)
 
 	// OUT - Add very last word to the line and output the last line.
 	line += word;
-	cout << line << endl;
+	outFile << line << endl;
 
 }
